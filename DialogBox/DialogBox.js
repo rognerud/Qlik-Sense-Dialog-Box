@@ -32,16 +32,16 @@ define(["qlik", "./getMasterItems", "css!./style.css"], function (qlik, getMaste
 						},
 						Dialogwidth: {
 							ref: "dialogwidth",
-							label: "Dialog Width in %",
+							label: "Dialog Width (write px or %)",
 							type: "string",
-							defaultValue: "50",
+							defaultValue: "50%",
 							expression: "optional"
 						},
 						Dialogheight: {
 							ref: "Dialogheight",
-							label: "Dialog Height in px",
+							label: "Dialog Height (write px or %)",
 							type: "string",
-							defaultValue: "300",
+							defaultValue: "300px",
 							expression: "optional"
 						},
 						defaultMasterObject: {
@@ -74,7 +74,7 @@ define(["qlik", "./getMasterItems", "css!./style.css"], function (qlik, getMaste
 						},
 						Paragraphheight: {
 							ref: "Paragraphheight",
-							label: "Paragraph Height in px",
+							label: "Paragraph Height (write px or %)",
 							type: "string",
 							defaultValue: "300",
 							expression: "optional",
@@ -105,15 +105,6 @@ define(["qlik", "./getMasterItems", "css!./style.css"], function (qlik, getMaste
 									ref: "ShowExport",
 									defaultValue: true
 								}
-								/*
-								ShowClose: {
-									type: "boolean",
-									label: "Show Close Button",
-									ref: "ShowClose",
-									defaultValue: true
-								}
-								style="'+(ShowClose?'':'display:none;')+'"
-								*/
 							}
 						}
 						
@@ -144,11 +135,10 @@ define(["qlik", "./getMasterItems", "css!./style.css"], function (qlik, getMaste
 				ShowClose = layout.ShowClose;
 			// add html
 			htm += '<div id="comment-diloag-' + layoutid + '" style="display: none;">';
-			htm += '<div class="lui-dialog dialog-content"  style="">';
+			htm += '<div class="lui-dialog dialog-content lui-dialog--inverse"  style="">';
 			htm += '<div class="lui-dialog__header" style="'+(ShowDialogTitle?'':'display:none;')+'">';
-			htm += '  <div class="lui-dialog__title" id="Dialog-Title" ></div>';
+			htm += '<div class="lui-dialog__title" id="Dialog-Title"></div>';
 			htm += '</div>';
-			//lui-dialog__body
 			htm += '<div class="lui-dialog__body2" id="cont-' + layoutid + '">';
 			htm += '</div>';
 			htm += '<div id="para-' + layoutid + '" style="height: 100px;overflow: scroll;padding: 5px;margin: 5px;border: 1px solid #ccc;"></div>';
@@ -159,15 +149,13 @@ define(["qlik", "./getMasterItems", "css!./style.css"], function (qlik, getMaste
 			htm += '</div>';
 			htm += '</div>';
 			htm += '</div>';
-			//if ($('#comment-diloag-' + layoutid).length == 0) {
+
 			if (!document.getElementById('comment-diloag-'+layoutid)) {
 				$('#grid-wrap').append(htm);
 				$(function () {
-					//{ containment: ".qv-panel-content" }
 					$("#comment-diloag-" + layoutid).draggable({ handle: "div.lui-dialog__header" });
 				});
 			}
-			
 			
 			$.each(layout.listItems, function (k, v) {
 				var Dialogtitle = v.dialogtitle;
@@ -182,8 +170,6 @@ define(["qlik", "./getMasterItems", "css!./style.css"], function (qlik, getMaste
 			$element.html(btn);
 			$(".cancel_"+layoutid).click(function () {
 				$('#comment-diloag-' + layoutid).css("display", "none");
-				//$('#comment-diloag-' + layoutid).remove();
-				//qlik.resize("comment-diloag-" + layoutid);
 			});
 
 			$(".view_dialog_"+layoutid).click(function () {
@@ -198,32 +184,23 @@ define(["qlik", "./getMasterItems", "css!./style.css"], function (qlik, getMaste
 				$('#download_file').hide();
 				$("#comment-diloag-" + layoutid).css("left", "0");
 				$("#comment-diloag-" + layoutid).css("top", "0");
-				//console.log(obj, title, width, height);
 				$('#Dialog-Title').html(title);
 				$("#comment-diloag-" + layoutid).css("display", "");
-				$(".dialog-content").css("width", width + "%");
-				$("#cont-" + layoutid).css("height", height + "px");
-				//console.log(obj,ShowPara,Paragraph);
+				$(".dialog-content").css("width", width);
+				$("#cont-" + layoutid).css("height", height);
 				if (ShowPara == "false" || ShowPara === false) {
 					$("#para-" + layoutid).hide();
 				} else {
-					$("#para-" + layoutid).show().css("height",Paragraphheight+"px").html(Paragraph);
+					$("#para-" + layoutid).show().css("height",Paragraphheight).html(Paragraph);
 				}
 				app.getObject('cont-' + layoutid, obj).then(function (modal) {
 					qlik.resize(this);
 					// export data excel
-					//console.log(modal);
-					//var qTable = qlik.table(modal);
 					var title = modal.layout.qMeta.title;
 					$('#Export').click(function () {
-						//qTable.exportData({download: true,filename:title});						
 						modal.exportData().then(function (reply) {
-							//console.log('reply=',reply);  
 							var url = (config.isSecure ? "https://" : "http://") + config.host + config.port + reply.qUrl;
-							//var url = "../resources/../"+ config.host+reply.qUrl; 
-							//var url = config.host+reply.qUrl; 
 							console.log('qUrlModified', url);
-							//window.open(url);
 							$('#download_file').attr("href", url);
 							$('#download_file').show();
 						});
